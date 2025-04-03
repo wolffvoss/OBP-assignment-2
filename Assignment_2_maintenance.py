@@ -78,8 +78,10 @@ def visualize_birth_death(n, k, s, lam, mu, warm_standby):
         dot.node(str(i), f"State {i}")
     # Add birth transitions.
     for i in range(n):
-        birth_rate = min(n - i, s) * lam
-        dot.edge(str(i), str(i+1), label=f"Birth: {birth_rate:.2f}")
+        multiplier = min(n - i, s)
+        birth_rate = multiplier * lam
+        label_text = f"Birth: {multiplier}λ = {birth_rate:.2f}"
+        dot.edge(str(i), str(i+1), label=label_text)
     # Add death transitions.
     for j in range(1, n+1):
         if warm_standby:
@@ -93,7 +95,9 @@ def visualize_birth_death(n, k, s, lam, mu, warm_standby):
                 death_rate = k * mu
                 label_text = f"Death: {k}μ = {death_rate:.2f}"
         dot.edge(str(j), str(j-1), label=label_text)
+    
     return dot
+
 
 def main():
     st.title("K-out-of-N System Calculator")
