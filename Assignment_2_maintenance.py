@@ -69,37 +69,30 @@ def optimize_system(k, lam, mu, warm_standby, component_cost, repairman_cost, do
             improvement = False
     return best_n, best_s, min_cost
 
-### ADDED CODE: Function to visualize the birth-death process using Graphviz.
 def visualize_birth_death(n, k, s, lam, mu, warm_standby):
-    """
-    Creates a Graphviz Digraph visualizing the birth-death process with a horizontal layout.
-    Nodes represent states 0 to n. 
-    Birth transitions from state i to i+1 are labeled with birth_rate = min(n - i, s)*lam.
-    Death transitions from state j to j-1 are labeled with:
-      - warm standby: death_rate = j * mu,
-      - cold standby: death_rate = j * mu if j <= k, else k * mu.
-    """
     dot = graphviz.Digraph(comment="Birth-Death Process")
     # Set graph to horizontal layout
-    dot.attr(rankdir="LR")  # <--- This line makes the graph horizontal.
-    
+    dot.attr(rankdir="LR")
     # Add nodes for all states.
     for i in range(n+1):
         dot.node(str(i), f"State {i}")
-    
     # Add birth transitions.
     for i in range(n):
         birth_rate = min(n - i, s) * lam
         dot.edge(str(i), str(i+1), label=f"Birth: {birth_rate:.2f}")
-    
     # Add death transitions.
     for j in range(1, n+1):
         if warm_standby:
             death_rate = j * mu
+            label_text = f"Death: {j}μ = {death_rate:.2f}"
         else:
-            death_rate = j * mu if j <= k else k * mu
-        dot.edge(str(j), str(j-1), label=f"Death: {death_rate:.2f}")
-    
+            if j <= k:
+                death_rate = j * mu
+                label_text = f"Death: {j}μ = {death_rate:.2f}"
+            else:
+                death_rate = k * mu
+                label_text = f"Death: {k}μ = {death_rate:.2f}"
+        dot.edge(str(j), str(j-1), label=label_text)
     return dot
 
 def main():
@@ -126,8 +119,6 @@ def main():
     else:
         pi, availability = k_out_of_n_availability_cold(n, k, s, lam, mu)
     
-
-    ### ADDED CODE: Button to visualize the Birth-Death Process using Graphviz.
     st.write(f"### Birth-Death Process Graphic")
     if st.checkbox("Show Birth-Death Process Graph"):
         dot = visualize_birth_death(n, k, s, lam, mu, warm_standby)
