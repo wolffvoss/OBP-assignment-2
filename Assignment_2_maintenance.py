@@ -26,8 +26,8 @@ def k_out_of_n_availability_cold(n, k, s, lam, mu):
     pi_unnorm[0] = 1.0
     for i in range(n):
         birth_rate = min(n - i, s) * lam
-        #In cold standby: if i <= k then all i units are active; if i > k then only k are active.
-        death_rate = (i+1) * mu if (i+1) <= k else k * mu
+        #In cold standby: if i < k then all i units are active; if i >= k then only k are active. 
+        death_rate = i * mu if i < k else k * mu 
         pi_unnorm[i+1] = pi_unnorm[i] * (birth_rate / death_rate)
     
     norm_const = sum(pi_unnorm)
