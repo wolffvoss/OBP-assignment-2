@@ -104,7 +104,7 @@ def visualize_birth_death(n, k, s, lam, mu, warm_standby):
 
 def main():
     st.title("K-out-of-N System Calculator")
-    
+    st.write(f"## All User Input")
     # User Inputs
     mu = st.number_input("Failure Rate (per unit time)", min_value=0.0001, value=0.1, format="%.4f")
     lam = st.number_input("Repair Rate (per unit time)", min_value=0.0001, value=0.5, format="%.4f")
@@ -130,13 +130,28 @@ def main():
     if st.checkbox("Show Birth-Death Process Graph"):
         dot = visualize_birth_death(n, k, s, lam, mu, warm_standby)
         st.graphviz_chart(dot)
+        
+   # Text about results
+    st.markdown("""
+           **Explanation of the birth-death process:**
+
+        - Each state represents the number of working components.
+        - State `0` means all components are **down**.
+        - State `n` means all components are **working**.
+        - Arrows at the top of the graph are giving the repair rate (lambda).
+        - Arrows at the bottom of the graph are giving the failure rate (mu).
+        """)     
     
     # Display results
     st.write(f"### Results")
+    st.write("**Question a**")
     st.write(f"**Fraction of time system is operational:** {availability:.4f}")
     st.write("**Stationary Distribution of States:**")
     st.bar_chart(pi)
     
+    
+    st.write("**Question b**")
+    st.write("Press to find the optimal values for minimal cost")
     if st.button("Optimize Configuration"):
       best_n, best_s, min_cost = optimize_system(k, lam, mu, warm_standby, component_cost, repairman_cost, downtime_cost)
       st.success(f"Optimal number of components: {best_n}")
