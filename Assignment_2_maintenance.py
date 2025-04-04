@@ -87,15 +87,15 @@ def visualize_birth_death(n, k, s, lam, mu, warm_standby):
         if warm_standby:
             death_rate = j * mu
             label_text = f"Death: {j}μ = {death_rate:.2f}"
+            dot.edge(str(j), str(j-1), label=label_text)
         else:
-            if j <= k:
-                death_rate = j * mu
-                label_text = f"Death: {j}μ = {death_rate:.2f}"
-            else:
+            ### CHANGED CODE: For cold standby, draw death arrow only if state j (number of working components)
+            ### is at least k. This yields death arrows only from states with j >= k.
+            if j >= k:
                 death_rate = k * mu
                 label_text = f"Death: {k}μ = {death_rate:.2f}"
-        dot.edge(str(j), str(j-1), label=label_text)
-    
+                dot.edge(str(j), str(j-1), label=label_text)
+            # If j < k, no death arrow is drawn.
     return dot
 
 
