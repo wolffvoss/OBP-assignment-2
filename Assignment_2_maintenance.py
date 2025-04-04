@@ -21,19 +21,22 @@ def k_out_of_n_availability_warm(n, k, s, lam, mu):
     return pi, availability
 
 def k_out_of_n_availability_cold(n, k, s, lam, mu):
-    #Same idea as in warm standby, but different death_rate
+    delta = 1e-6  #small rate when system is down
     pi_unnorm = [0.0] * (n + 1)
     pi_unnorm[0] = 1.0
     for i in range(n):
         birth_rate = min(n - i, s) * lam
-        #In cold standby: if i < k then all i units are active; if i >= k then only k are active. 
-        death_rate = (i+1) * mu if (i+1) <= k else k * mu
+        # In cold standby, if (i+1) < k then the system is down and no further degradation should occur.
+        if (i+1) < k:
+            death_rate = delta
+        else:
+            death_rate = k * mu
         pi_unnorm[i+1] = pi_unnorm[i] * (birth_rate / death_rate)
     
     norm_const = sum(pi_unnorm)
     pi = [x / norm_const for x in pi_unnorm]
     
-    availability = sum(pi[j] for j in range(k, n + 1))
+    availability = sum(pi[i] for i in range(k, n + 1))
     return pi, availability
 
 def total_cost(n, k, s, lam, mu, warm_standby, component_cost, repairman_cost, downtime_cost):
